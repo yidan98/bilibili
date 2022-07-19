@@ -1,76 +1,89 @@
-import { useState } from "react";
+import React, { Component } from "react";
 
-import TodoList from "./components/todo-list/todoList.component";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import List from "./components/List";
+
 import "./App.css";
 
-const App = () => {
-  const [todoList, setTodoList] = useState([]);
-  const [todoText, setTodoText] = useState("");
-  const [month, setMonth] = useState("");
-  const [day, setDay] = useState("");
-
-  const addText = (event) => {
-    // console.log("value", event.target.value);
-    const newTodo = event.target.value;
-    setTodoText(newTodo);
+export default class App extends Component {
+  state = {
+    todoList: [
+      { id: 1, name: "吃饭", done: true },
+      { id: 2, name: "睡觉", done: true },
+      { id: 3, name: "逛街", done: false },
+      { id: 4, name: "上班", done: false },
+    ],
+  };
+  a = (data) => {
+    console.log("App", data);
+  };
+  // 添加todo
+  addTodo = (todoObj) => {
+    const { todoList } = this.state;
+    const newTodoList = [todoObj, ...todoList];
+    this.setState({
+      todoList: newTodoList,
+    });
+  };
+  // 更新todo
+  updataTodo = (id, done) => {
+    const { todoList } = this.state;
+    const newTodos = todoList.map((item) => {
+      if (item.id === id) {
+        return { ...item, done: done };
+      } else {
+        return item;
+      }
+    });
+    this.setState({ todoList: newTodos });
   };
 
-  const addMonth = (event) => {
-    const newMonth = event.target.value + "";
-    setMonth(newMonth);
-  };
-  const addDay = (event) => {
-    const newDay = event.target.value + "";
-    setDay(newDay);
-  };
-
-  const addItem = () => {
-    if (todoText === "" || month === "" || day === "") {
-      alert("请输入内容");
-    } else {
-      const newTodoItem = {
-        todoText: todoText,
-        time: month + "/" + day,
-        id: todoList.length + 1,
-      };
-      console.log(todoList);
-      const list = [...todoList];
-      list.push(newTodoItem);
-      setTodoList(list);
-    }
+  // 删除
+  delTodo = (id) => {
+    const { todoList } = this.state;
+    const newTodos = todoList.filter((item) => {
+      return item.id !== id;
+    });
+    this.setState({ todoList: newTodos });
   };
 
-  return (
-    <div className="App">
-      <h1 className="app-title">Todo List</h1>
-      <div>
-        <span>Add a todo</span>
-        <input
-          name="todoText"
-          type="text"
-          maxLength="30"
-          placeholder="E.g. Feed the cat"
-          onChange={addText}
-        ></input>
-        <input
-          name="month"
-          placeholder="m"
-          onChange={addMonth}
-          type="text"
-          maxLength="2"
-        ></input>
-        <input
-          name="day"
-          placeholder="d"
-          onChange={addDay}
-          type="text"
-          maxLength="2"
-        ></input>
-        <button onClick={addItem}>Add</button>
+  // 全选/全不选
+  allChecked = (done) => {
+    const { todoList } = this.state;
+    const newTodos = todoList.map((item) => {
+      return { ...item, done: done };
+    });
+    this.setState({ todoList: newTodos });
+  };
+  // 清除所以已经完成的任务
+  clearAllDone = () => {
+    const { todoList } = this.state;
+    const newTodos = todoList.filter((item) => {
+      return !item.done;
+    });
+    this.setState({ todoList: newTodos });
+  };
+
+  render() {
+    const { todoList } = this.state;
+    return (
+      <div className="todo-container">
+        <div className="todo-wrap">
+          <h2>todoList案例</h2>
+          <Header addTodo={this.addTodo} a={this.a} />
+          <List
+            todoList={todoList}
+            updataTodo={this.updataTodo}
+            delTodo={this.delTodo}
+          />
+          <Footer
+            todoList={todoList}
+            allChecked={this.allChecked}
+            clearAllDone={this.clearAllDone}
+          />
+        </div>
       </div>
-      <TodoList items={todoList} />
-    </div>
-  );
-};
-
-export default App;
+    );
+  }
+}
